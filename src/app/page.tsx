@@ -1,7 +1,14 @@
+"use client";
+
+import DynamicMap from "@/components/map/DynamicMap";
+import { useAlertStream } from "@/hooks/useAlertStream";
+
 export default function Home() {
+  useAlertStream();
+
   return (
-    <div className="w-screen h-screen flex items-center justify-center bg-[#0a1628]">
-      <p className="text-iron-text text-lg">Iron Trace — Loading...</p>
-    </div>
+    <main className="w-screen h-screen relative overflow-hidden">
+      <DynamicMap />
+    </main>
   );
 }
