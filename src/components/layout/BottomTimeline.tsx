@@ -31,7 +31,6 @@ export function BottomTimeline() {
   const stopReplay = useTimelineStore((s) => s.stopReplay);
   const setCurrentTime = useTimelineStore((s) => s.setCurrentTime);
 
-  // Compute timeline progress
   let progress = 0;
   if (isReplaying && rangeStart && rangeEnd && currentTime) {
     const start = new Date(rangeStart).getTime();
@@ -62,15 +61,16 @@ export function BottomTimeline() {
   };
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 h-16 z-[1001] bg-iron-panel backdrop-blur-sm border-t border-white/10 flex items-center px-4 gap-3">
+    <div className="absolute bottom-0 left-0 right-0 h-14 z-[1001] bg-iron-panel/95 backdrop-blur-md border-t border-white/[0.06] flex items-center px-4 gap-3">
       {/* Replay controls */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         {!isReplaying ? (
           <button
             onClick={handleStartReplay}
             disabled={alerts.length < 2}
-            className="text-xs px-2 py-1 rounded bg-white/10 text-iron-text/60 hover:text-iron-text hover:bg-white/15 transition-colors disabled:opacity-30"
+            className="text-[10px] px-3 py-1.5 rounded-md bg-white/[0.06] border border-white/[0.06] text-iron-text/50 hover:text-iron-text/80 hover:bg-white/[0.1] transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed font-medium uppercase tracking-wider"
             title="Start replay"
+            aria-label="Start replay"
           >
             Replay
           </button>
@@ -78,13 +78,15 @@ export function BottomTimeline() {
           <>
             <button
               onClick={togglePlayback}
-              className="w-7 h-7 rounded bg-white/10 text-iron-text flex items-center justify-center hover:bg-white/15 transition-colors"
+              className="w-8 h-8 rounded-md bg-white/[0.08] border border-white/[0.08] text-iron-text/70 flex items-center justify-center hover:bg-white/[0.12] hover:text-iron-text transition-all duration-150"
+              aria-label={isPlaying ? "Pause" : "Play"}
             >
-              {isPlaying ? "\u23F8" : "\u25B6"}
+              <span className="text-sm">{isPlaying ? "\u23F8" : "\u25B6"}</span>
             </button>
             <button
               onClick={stopReplay}
-              className="text-xs px-2 py-1 rounded bg-white/10 text-iron-text/60 hover:text-iron-text transition-colors"
+              className="text-[10px] px-2.5 py-1.5 rounded-md bg-white/[0.06] border border-white/[0.06] text-iron-text/40 hover:text-iron-text/70 transition-all duration-150 font-medium uppercase tracking-wider"
+              aria-label="Stop replay"
             >
               Stop
             </button>
@@ -92,18 +94,19 @@ export function BottomTimeline() {
         )}
       </div>
 
-      {/* Speed selector (only in replay mode) */}
+      {/* Speed selector */}
       {isReplaying && (
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5 bg-white/[0.03] rounded-md p-0.5">
           {SPEEDS.map((s) => (
             <button
               key={s}
               onClick={() => setSpeed(s)}
-              className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${
+              className={`text-[10px] px-1.5 py-0.5 rounded font-mono transition-all duration-150 ${
                 speed === s
-                  ? "bg-iron-ballistic/30 text-iron-ballistic"
-                  : "text-iron-text/30 hover:text-iron-text/60"
+                  ? "bg-iron-ballistic/20 text-iron-ballistic font-bold"
+                  : "text-iron-text/25 hover:text-iron-text/50"
               }`}
+              aria-label={`Set speed to ${s}x`}
             >
               {s}x
             </button>
@@ -111,28 +114,47 @@ export function BottomTimeline() {
         </div>
       )}
 
-      {/* Time range */}
-      <div className="text-xs text-iron-text/40 font-mono whitespace-nowrap">
+      {/* Time range start */}
+      <div className="text-[10px] text-iron-text/30 font-mono whitespace-nowrap tabular-nums">
         {formatTimeShort(isReplaying ? rangeStart : alerts.length > 0 ? alerts[alerts.length - 1]?.timestamp : null)}
       </div>
 
       {/* Timeline track */}
       <div
-        className="flex-1 relative h-6 bg-white/5 rounded-full overflow-hidden cursor-pointer"
+        className="flex-1 relative h-7 bg-white/[0.03] rounded-md overflow-hidden cursor-pointer border border-white/[0.04] group"
         onClick={handleScrub}
+        role="slider"
+        aria-label="Timeline"
+        aria-valuenow={Math.round(progress)}
+        aria-valuemin={0}
+        aria-valuemax={100}
       >
+        {/* Fill */}
         <div
-          className="absolute top-0 left-0 h-full bg-iron-ballistic/20 rounded-full transition-all duration-300"
+          className="absolute top-0 left-0 h-full bg-gradient-to-r from-iron-ballistic/15 to-iron-ballistic/25 transition-all duration-300"
           style={{ width: `${Math.min(100, progress)}%` }}
         />
+        {/* Tick marks for visual texture */}
+        <div className="absolute inset-0 flex items-end px-1 pb-0.5 pointer-events-none">
+          {Array.from({ length: 20 }, (_, i) => (
+            <div
+              key={i}
+              className="flex-1 mx-px"
+              style={{ height: `${8 + Math.random() * 12}px` }}
+            >
+              <div className="w-full h-full bg-white/[0.04] rounded-sm" />
+            </div>
+          ))}
+        </div>
         {/* Scrubber handle */}
         {isReplaying && (
           <div
-            className="absolute top-0 h-full w-1 bg-iron-ballistic rounded"
+            className="absolute top-0 h-full w-0.5 bg-iron-ballistic shadow-[0_0_6px_rgba(220,20,60,0.4)] transition-all duration-100"
             style={{ left: `${Math.min(100, progress)}%` }}
           />
         )}
-        <div className="absolute inset-0 flex items-center justify-center text-[10px] text-iron-text/30">
+        {/* Label */}
+        <div className="absolute inset-0 flex items-center justify-center text-[10px] text-iron-text/20 font-medium pointer-events-none">
           {isReplaying
             ? `Replaying at ${speed}x`
             : alerts.length > 0
@@ -142,7 +164,7 @@ export function BottomTimeline() {
       </div>
 
       {/* Current time */}
-      <div className="text-xs text-iron-text/40 font-mono whitespace-nowrap">
+      <div className="text-[10px] text-iron-text/30 font-mono whitespace-nowrap tabular-nums">
         {formatTimeShort(isReplaying ? currentTime : lastUpdate)}
       </div>
     </div>

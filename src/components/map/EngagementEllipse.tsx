@@ -23,7 +23,7 @@ function EllipseOverlay({ analysis }: { analysis: EngagementAnalysis }) {
             pathOptions={{
               color: isBallistic ? "#DC143C" : "#8B8B8B",
               fillColor: isBallistic ? "#DC143C" : "#8B8B8B",
-              fillOpacity: isBallistic ? 0.2 : 0.1,
+              fillOpacity: isBallistic ? 0.15 : 0.08,
               weight: isBallistic ? 2 : 1,
               dashArray: isBallistic ? undefined : "5,5",
             }}
@@ -32,12 +32,28 @@ function EllipseOverlay({ analysis }: { analysis: EngagementAnalysis }) {
             }}
           >
             <Popup>
-              <div className="text-sm">
-                <div className="font-bold">{analysis.classification}</div>
-                <div>Eccentricity: {ellipse.eccentricity.toFixed(2)}</div>
-                <div>Semi-major: {ellipse.semiMajorKm.toFixed(1)} km</div>
-                <div>Azimuth: {ellipse.angle.toFixed(1)}°</div>
-                <div>Confidence: {(analysis.confidence.total * 100).toFixed(0)}%</div>
+              <div className="min-w-[160px]">
+                <div className="font-bold text-sm mb-1.5" style={{ color: isBallistic ? "#DC143C" : "#8B8B8B" }}>
+                  {analysis.classification.replace(/_/g, " ")}
+                </div>
+                <div className="space-y-1 text-xs">
+                  <div className="flex justify-between">
+                    <span className="opacity-50">Eccentricity</span>
+                    <span className="font-mono">{ellipse.eccentricity.toFixed(3)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="opacity-50">Semi-major</span>
+                    <span className="font-mono">{ellipse.semiMajorKm.toFixed(1)} km</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="opacity-50">Azimuth</span>
+                    <span className="font-mono">{ellipse.angle.toFixed(1)}&deg;</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="opacity-50">Confidence</span>
+                    <span className="font-mono font-bold">{(analysis.confidence.total * 100).toFixed(0)}%</span>
+                  </div>
+                </div>
               </div>
             </Popup>
           </Polygon>
@@ -72,8 +88,9 @@ function EllipseOverlay({ analysis }: { analysis: EngagementAnalysis }) {
               positions={arrow}
               pathOptions={{
                 color: "#DC143C",
-                weight: 3,
-                opacity: 0.8,
+                weight: 2.5,
+                opacity: 0.7,
+                dashArray: "6,4",
               }}
             />
           );

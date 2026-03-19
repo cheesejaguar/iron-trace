@@ -34,9 +34,9 @@ function ArcOverlay({
       <Polygon
         positions={conePositions}
         pathOptions={{
-          color,
+          color: "transparent",
           fillColor: color,
-          fillOpacity: 0.08,
+          fillOpacity: 0.06,
           weight: 0,
         }}
       />
@@ -47,7 +47,7 @@ function ArcOverlay({
         pathOptions={{
           color,
           weight: 2,
-          opacity: 0.8,
+          opacity: 0.75,
           dashArray: "8,6",
         }}
         eventHandlers={{
@@ -55,15 +55,27 @@ function ArcOverlay({
         }}
       >
         <Popup>
-          <div className="text-sm">
-            <div className="font-bold">
-              Trajectory → {arc.estimatedOrigin}
+          <div className="min-w-[160px]">
+            <div className="font-bold text-sm mb-1.5" style={{ color }}>
+              Trajectory &rarr; {arc.estimatedOrigin}
             </div>
-            <div>Back-azimuth: {arc.backAzimuth.toFixed(1)}°</div>
-            <div>Distance: {arc.distanceKm.toFixed(0)} km</div>
-            <div>Munition: {analysis.munitionType}</div>
-            <div>
-              Confidence: {(analysis.confidence.total * 100).toFixed(0)}%
+            <div className="space-y-1 text-xs">
+              <div className="flex justify-between">
+                <span className="opacity-50">Back-azimuth</span>
+                <span className="font-mono">{arc.backAzimuth.toFixed(1)}&deg;</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="opacity-50">Distance</span>
+                <span className="font-mono">{arc.distanceKm.toFixed(0)} km</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="opacity-50">Munition</span>
+                <span className="font-mono">{analysis.munitionType}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="opacity-50">Confidence</span>
+                <span className="font-mono font-bold">{(analysis.confidence.total * 100).toFixed(0)}%</span>
+              </div>
             </div>
           </div>
         </Popup>

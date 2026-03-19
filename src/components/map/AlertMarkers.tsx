@@ -13,6 +13,14 @@ const THREAT_COLORS: Record<ThreatCategory, string> = {
   [ThreatCategory.UNKNOWN]: "#6B7280",
 };
 
+const THREAT_LABELS: Record<ThreatCategory, string> = {
+  [ThreatCategory.MISSILES]: "Ballistic",
+  [ThreatCategory.HOSTILE_AIRCRAFT]: "Aircraft",
+  [ThreatCategory.UAV]: "UAV",
+  [ThreatCategory.ROCKETS]: "Rockets",
+  [ThreatCategory.UNKNOWN]: "Unknown",
+};
+
 /** Radius by category (ballistic = larger) */
 const THREAT_RADII: Record<ThreatCategory, number> = {
   [ThreatCategory.MISSILES]: 8,
@@ -36,29 +44,30 @@ function isRecent(timestamp: string, thresholdMs = 5 * 60 * 1000): boolean {
 }
 
 function AlertMarkerPopup({ alert }: { alert: NormalizedAlert }) {
+  const color = THREAT_COLORS[alert.threat_category];
   return (
     <Popup>
-      <div className="text-sm min-w-[200px]">
-        <div className="font-bold text-base mb-1">
+      <div className="min-w-[180px]">
+        <div className="font-bold text-sm mb-1.5" style={{ color }}>
           {alert.regions.slice(0, 3).join(", ")}
           {alert.regions.length > 3 && ` +${alert.regions.length - 3}`}
         </div>
-        <div className="space-y-0.5 text-gray-700">
-          <div>
-            <span className="font-semibold">Category:</span>{" "}
-            {alert.threat_category}
+        <div className="space-y-1 text-xs">
+          <div className="flex justify-between">
+            <span className="opacity-50">Category</span>
+            <span className="font-medium" style={{ color }}>{THREAT_LABELS[alert.threat_category]}</span>
           </div>
-          <div>
-            <span className="font-semibold">Countdown:</span>{" "}
-            {alert.countdown_seconds}s
+          <div className="flex justify-between">
+            <span className="opacity-50">Countdown</span>
+            <span className="font-mono">{alert.countdown_seconds}s</span>
           </div>
-          <div>
-            <span className="font-semibold">Time:</span>{" "}
-            {formatTime(alert.timestamp)}
+          <div className="flex justify-between">
+            <span className="opacity-50">Time</span>
+            <span className="font-mono">{formatTime(alert.timestamp)}</span>
           </div>
-          <div>
-            <span className="font-semibold">Regions:</span>{" "}
-            {alert.regions.length}
+          <div className="flex justify-between">
+            <span className="opacity-50">Regions</span>
+            <span>{alert.regions.length}</span>
           </div>
         </div>
       </div>

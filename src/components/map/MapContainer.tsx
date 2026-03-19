@@ -20,7 +20,6 @@ function FixLeafletIcons() {
       iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
       shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
     });
-    // Force a re-render
     map.invalidateSize();
   }, [map]);
   return null;
@@ -30,16 +29,11 @@ function FixLeafletIcons() {
 const TILE_LAYERS = {
   dark: {
     url: "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png",
-    attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OSM</a>',
-  },
-  osm: {
-    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>',
   },
 };
 
 export default function MapContainerComponent() {
-  // Center on Israel
   const center: L.LatLngExpression = [31.5, 35.0];
 
   return (

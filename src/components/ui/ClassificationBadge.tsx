@@ -2,30 +2,25 @@
 
 import { ThreatCategory } from "@/types";
 
-const BADGE_COLORS: Record<ThreatCategory, { bg: string; text: string }> = {
-  [ThreatCategory.MISSILES]: { bg: "bg-iron-ballistic/20", text: "text-iron-ballistic" },
-  [ThreatCategory.HOSTILE_AIRCRAFT]: { bg: "bg-iron-cruise/20", text: "text-iron-cruise" },
-  [ThreatCategory.UAV]: { bg: "bg-iron-uav/20", text: "text-iron-uav" },
-  [ThreatCategory.ROCKETS]: { bg: "bg-iron-rocket/20", text: "text-iron-rocket" },
-  [ThreatCategory.UNKNOWN]: { bg: "bg-gray-500/20", text: "text-gray-400" },
-};
-
-const BADGE_LABELS: Record<ThreatCategory, string> = {
-  [ThreatCategory.MISSILES]: "Ballistic",
-  [ThreatCategory.HOSTILE_AIRCRAFT]: "Aircraft",
-  [ThreatCategory.UAV]: "UAV",
-  [ThreatCategory.ROCKETS]: "Rockets",
-  [ThreatCategory.UNKNOWN]: "Unknown",
+const BADGE_CONFIG: Record<ThreatCategory, { bg: string; text: string; dot: string; label: string }> = {
+  [ThreatCategory.MISSILES]: { bg: "bg-iron-ballistic/15", text: "text-iron-ballistic", dot: "bg-iron-ballistic", label: "Ballistic" },
+  [ThreatCategory.HOSTILE_AIRCRAFT]: { bg: "bg-iron-cruise/15", text: "text-iron-cruise", dot: "bg-iron-cruise", label: "Aircraft" },
+  [ThreatCategory.UAV]: { bg: "bg-iron-uav/15", text: "text-iron-uav", dot: "bg-iron-uav", label: "UAV" },
+  [ThreatCategory.ROCKETS]: { bg: "bg-iron-rocket/15", text: "text-iron-rocket", dot: "bg-iron-rocket", label: "Rockets" },
+  [ThreatCategory.UNKNOWN]: { bg: "bg-gray-500/15", text: "text-gray-400", dot: "bg-gray-400", label: "Unknown" },
 };
 
 export function ClassificationBadge({ category }: { category: ThreatCategory }) {
-  const colors = BADGE_COLORS[category];
+  const config = BADGE_CONFIG[category];
 
   return (
     <span
-      className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${colors.bg} ${colors.text}`}
+      className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded ${config.bg} ${config.text}`}
     >
-      {BADGE_LABELS[category]}
+      <span className={`w-1.5 h-1.5 rounded-full ${config.dot} shrink-0`} />
+      <span className="text-[10px] font-semibold uppercase tracking-wider leading-none">
+        {config.label}
+      </span>
     </span>
   );
 }
