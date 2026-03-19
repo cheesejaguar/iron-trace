@@ -86,6 +86,7 @@ html, body {
 
 .alert-marker-pulse {
   animation: pulse-alert 1.5s ease-in-out infinite;
+  transform-origin: center;
 }
 
 /* Subtle glow pulse for live connection indicator */
