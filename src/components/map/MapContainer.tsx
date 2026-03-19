@@ -6,6 +6,8 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { AlertMarkers } from "./AlertMarkers";
 import { AnalysisOverlays } from "./AnalysisOverlays";
+import { MapControls } from "./MapControls";
+import { FlyToAlert } from "./FlyToAlert";
 
 // Fix Leaflet default icon paths for Next.js
 function FixLeafletIcons() {
@@ -56,6 +58,8 @@ export default function MapContainerComponent() {
       />
       <AlertMarkers />
       <AnalysisOverlays />
+      <MapControls />
+      <FlyToAlert />
     </LeafletMapContainer>
   );
 }
