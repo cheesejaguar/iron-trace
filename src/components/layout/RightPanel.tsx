@@ -134,8 +134,12 @@ export function RightPanel() {
   // Show layer toggles
   const showEllipses = useAnalysisStore((s) => s.showEllipses);
   const showTrajectories = useAnalysisStore((s) => s.showTrajectories);
+  const showHeatmap = useAnalysisStore((s) => s.showHeatmap);
+  const showLaunchSites = useAnalysisStore((s) => s.showLaunchSites);
   const toggleEllipses = useAnalysisStore((s) => s.toggleEllipses);
   const toggleTrajectories = useAnalysisStore((s) => s.toggleTrajectories);
+  const toggleHeatmap = useAnalysisStore((s) => s.toggleHeatmap);
+  const toggleLaunchSites = useAnalysisStore((s) => s.toggleLaunchSites);
 
   return (
     <CollapsiblePanel side="right" width={360} defaultOpen={false}>
@@ -150,6 +154,8 @@ export function RightPanel() {
       <div className="px-3 py-2 border-b border-white/5 flex gap-2">
         <Toggle active={showEllipses} onClick={toggleEllipses} label="Ellipses" />
         <Toggle active={showTrajectories} onClick={toggleTrajectories} label="Arcs" />
+        <Toggle active={showHeatmap} onClick={toggleHeatmap} label="Heatmap" />
+        <Toggle active={showLaunchSites} onClick={toggleLaunchSites} label="Sites" />
       </div>
 
       <div className="flex-1 overflow-y-auto iron-scrollbar p-3">
