@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { AlertMarkers } from "./AlertMarkers";
+import { AnalysisOverlays } from "./AnalysisOverlays";
 
 // Fix Leaflet default icon paths for Next.js
 function FixLeafletIcons() {
@@ -54,6 +55,7 @@ export default function MapContainerComponent() {
         maxZoom={19}
       />
       <AlertMarkers />
+      <AnalysisOverlays />
     </LeafletMapContainer>
   );
 }
