@@ -9,5 +9,11 @@ export default defineConfig({
   },
   test: {
     environment: "node",
+    coverage: {
+      provider: "v8",
+      include: ["src/lib/**/*.ts", "src/stores/**/*.ts"],
+      exclude: ["src/**/__tests__/**", "src/**/*.d.ts", "src/lib/db/**", "src/lib/alert-sources/demo.ts"],
+      reporter: ["text", "text-summary", "json-summary"],
+    },
   },
 });

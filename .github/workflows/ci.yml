@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-typecheck:
+    name: Lint & Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci --legacy-peer-deps
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci --legacy-peer-deps
+
+      - name: Run tests with coverage
+        run: npx vitest run --coverage
+
+      - name: Check coverage thresholds
+        run: |
+          node -e "
+            const summary = require('./coverage/coverage-summary.json');
+            const { statements, branches, functions, lines } = summary.total;
+            const fails = [];
+            if (statements.pct < 85) fails.push('Statements: ' + statements.pct + '% < 85%');
+            if (branches.pct < 75) fails.push('Branches: ' + branches.pct + '% < 75%');
+            if (functions.pct < 90) fails.push('Functions: ' + functions.pct + '% < 90%');
+            if (lines.pct < 85) fails.push('Lines: ' + lines.pct + '% < 85%');
+            if (fails.length > 0) {
+              console.error('Coverage below thresholds:\\n' + fails.join('\\n'));
+              process.exit(1);
+            }
+            console.log('Coverage OK: ' + statements.pct + '% stmts, ' + branches.pct + '% branches, ' + functions.pct + '% funcs, ' + lines.pct + '% lines');
+          "
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci --legacy-peer-deps
+
+      - name: Build
+        run: npm run build

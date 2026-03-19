@@ -45,16 +45,16 @@ describe("normalize", () => {
     expect(alert.centroids).toEqual([]);
   });
 
-  it("generates deterministic dedup IDs", () => {
+  it("generates deterministic dedup IDs for same regions", () => {
     const raw: RawOrefAlert = {
       id: "1", cat: "1", title: "", data: ["A", "B"], desc: "",
     };
-    // Same data produces IDs with same hash suffix
+    // Same data produces IDs with same hash suffix (last segment after final '-')
     const a1 = normalizeOrefAlert(raw);
     const a2 = normalizeOrefAlert(raw);
-    // Both contain the same hash part (after timestamp differs)
-    const hash1 = a1.id.split("-").slice(1).join("-");
-    const hash2 = a2.id.split("-").slice(1).join("-");
+    const hash1 = a1.id.slice(a1.id.lastIndexOf("-") + 1);
+    const hash2 = a2.id.slice(a2.id.lastIndexOf("-") + 1);
     expect(hash1).toBe(hash2);
+    expect(hash1.length).toBeGreaterThan(0);
   });
 });
