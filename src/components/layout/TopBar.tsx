@@ -73,9 +73,12 @@ export function TopBar() {
           <span className="font-bold text-iron-text text-xs md:text-sm tracking-tight leading-none">
             Iron Trace
           </span>
-          <span className="text-[9px] text-iron-text/30 font-mono leading-none mt-0.5 hidden md:block">
-            OSINT v1.0
-          </span>
+          <Link
+            href="/privacy"
+            className="text-[9px] text-iron-text/70 underline leading-none mt-0.5"
+          >
+            Privacy &amp; terms
+          </Link>
         </div>
       </div>
 
@@ -173,9 +176,6 @@ export function TopBar() {
 
       {/* Connection status */}
       <ConnectionStatus />
-      <Link href="/privacy" className="ml-auto text-xs underline">
-        Privacy &amp; terms
-      </Link>
     </header>
   );
 }
