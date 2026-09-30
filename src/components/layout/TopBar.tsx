@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useAlertStore } from "@/stores/alert-store";
 import { useAnalysisStore } from "@/stores/analysis-store";
 import { ConnectionStatus } from "@/components/ui/ConnectionStatus";
@@ -171,9 +173,9 @@ export function TopBar() {
 
       {/* Connection status */}
       <ConnectionStatus />
-      <a href="/privacy" className="ml-auto text-xs underline">
+      <Link href="/privacy" className="ml-auto text-xs underline">
         Privacy &amp; terms
-      </a>
+      </Link>
     </header>
   );
 }
