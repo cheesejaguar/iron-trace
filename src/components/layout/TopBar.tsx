@@ -5,11 +5,37 @@ import { useAnalysisStore } from "@/stores/analysis-store";
 import { ConnectionStatus } from "@/components/ui/ConnectionStatus";
 import { ThreatCategory, EngagementClassification } from "@/types";
 
-const FILTER_BUTTONS: { category: ThreatCategory; label: string; color: string; activeColor: string }[] = [
-  { category: ThreatCategory.MISSILES, label: "Ballistic", color: "text-iron-ballistic", activeColor: "bg-iron-ballistic/15 border-iron-ballistic/40 text-iron-ballistic" },
-  { category: ThreatCategory.HOSTILE_AIRCRAFT, label: "Aircraft", color: "text-iron-cruise", activeColor: "bg-iron-cruise/15 border-iron-cruise/40 text-iron-cruise" },
-  { category: ThreatCategory.UAV, label: "UAV", color: "text-iron-uav", activeColor: "bg-iron-uav/15 border-iron-uav/40 text-iron-uav" },
-  { category: ThreatCategory.ROCKETS, label: "Rockets", color: "text-iron-rocket", activeColor: "bg-iron-rocket/15 border-iron-rocket/40 text-iron-rocket" },
+const FILTER_BUTTONS: {
+  category: ThreatCategory;
+  label: string;
+  color: string;
+  activeColor: string;
+}[] = [
+  {
+    category: ThreatCategory.MISSILES,
+    label: "Ballistic",
+    color: "text-iron-ballistic",
+    activeColor:
+      "bg-iron-ballistic/15 border-iron-ballistic/40 text-iron-ballistic",
+  },
+  {
+    category: ThreatCategory.HOSTILE_AIRCRAFT,
+    label: "Aircraft",
+    color: "text-iron-cruise",
+    activeColor: "bg-iron-cruise/15 border-iron-cruise/40 text-iron-cruise",
+  },
+  {
+    category: ThreatCategory.UAV,
+    label: "UAV",
+    color: "text-iron-uav",
+    activeColor: "bg-iron-uav/15 border-iron-uav/40 text-iron-uav",
+  },
+  {
+    category: ThreatCategory.ROCKETS,
+    label: "Rockets",
+    color: "text-iron-rocket",
+    activeColor: "bg-iron-rocket/15 border-iron-rocket/40 text-iron-rocket",
+  },
 ];
 
 export function TopBar() {
@@ -19,7 +45,7 @@ export function TopBar() {
   const analyses = useAnalysisStore((s) => s.analyses);
 
   const ballisticCount = analyses.filter(
-    (a) => a.classification === EngagementClassification.BALLISTIC_MISSILE
+    (a) => a.classification === EngagementClassification.BALLISTIC_MISSILE,
   ).length;
 
   return (
@@ -27,7 +53,13 @@ export function TopBar() {
       {/* Logo */}
       <div className="flex items-center gap-2 shrink-0">
         <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-gradient-to-br from-iron-ballistic/30 to-iron-ballistic/10 border border-iron-ballistic/20 flex items-center justify-center">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="text-iron-ballistic md:w-4 md:h-4">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 16 16"
+            fill="none"
+            className="text-iron-ballistic md:w-4 md:h-4"
+          >
             <path
               d="M8 1L10 6H14L11 9L12 14L8 11L4 14L5 9L2 6H6L8 1Z"
               fill="currentColor"
@@ -51,7 +83,8 @@ export function TopBar() {
       {/* Category filters - desktop shows labels, mobile shows compact dots */}
       <div className="hidden md:flex items-center gap-1.5">
         {FILTER_BUTTONS.map((btn) => {
-          const isActive = activeFilters.size === 0 || activeFilters.has(btn.category);
+          const isActive =
+            activeFilters.size === 0 || activeFilters.has(btn.category);
           return (
             <button
               key={btn.category}
@@ -71,7 +104,8 @@ export function TopBar() {
       {/* Mobile compact filters */}
       <div className="flex md:hidden items-center gap-1">
         {FILTER_BUTTONS.map((btn) => {
-          const isActive = activeFilters.size === 0 || activeFilters.has(btn.category);
+          const isActive =
+            activeFilters.size === 0 || activeFilters.has(btn.category);
           return (
             <button
               key={btn.category}
@@ -95,8 +129,20 @@ export function TopBar() {
       {/* Engagement count - hide on very small screens */}
       {ballisticCount > 0 && (
         <div className="hidden xs:flex items-center gap-1.5 md:gap-2 bg-iron-ballistic/10 border border-iron-ballistic/20 rounded-md px-2 md:px-2.5 py-1">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="text-iron-ballistic/70">
-            <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="1.5" />
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 12 12"
+            fill="none"
+            className="text-iron-ballistic/70"
+          >
+            <circle
+              cx="6"
+              cy="6"
+              r="5"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            />
             <circle cx="6" cy="6" r="2" fill="currentColor" />
           </svg>
           <span className="text-[11px] text-iron-ballistic/70 uppercase tracking-wider font-medium hidden md:inline">
@@ -110,8 +156,12 @@ export function TopBar() {
 
       {/* Alert count */}
       <div className="flex items-center gap-1.5">
-        <span className="text-[11px] text-iron-text/40 uppercase tracking-wider hidden md:inline">Alerts</span>
-        <span className={`text-sm font-mono font-bold ${alertCount > 0 ? "text-iron-text" : "text-iron-text/30"}`}>
+        <span className="text-[11px] text-iron-text/40 uppercase tracking-wider hidden md:inline">
+          Alerts
+        </span>
+        <span
+          className={`text-sm font-mono font-bold ${alertCount > 0 ? "text-iron-text" : "text-iron-text/30"}`}
+        >
           {alertCount}
         </span>
       </div>
@@ -121,7 +171,9 @@ export function TopBar() {
 
       {/* Connection status */}
       <ConnectionStatus />
-    <a href="/privacy" className="ml-auto text-xs underline">Privacy &amp; terms</a>
+      <a href="/privacy" className="ml-auto text-xs underline">
+        Privacy &amp; terms
+      </a>
     </header>
   );
 }
