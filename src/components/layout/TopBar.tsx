@@ -121,6 +121,7 @@ export function TopBar() {
 
       {/* Connection status */}
       <ConnectionStatus />
+    <a href="/privacy" className="ml-auto text-xs underline">Privacy &amp; terms</a>
     </header>
   );
 }
