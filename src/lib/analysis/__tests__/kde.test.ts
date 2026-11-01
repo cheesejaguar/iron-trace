@@ -79,7 +79,17 @@ describe("KDE", () => {
       { lat: 32, lng: 34 },
     ]);
     const heat = generateHeatmap([arc1, arc2]);
-    expect(heat.length).toBeGreaterThan(0);
+    // One crossing at ~(31, 35) plus the two arc endpoints
+    expect(heat).toHaveLength(3);
+    expect(heat[0].lat).toBeCloseTo(31);
+    expect(heat[0].lng).toBeCloseTo(35);
+    expect(heat.slice(1).map(({ lat, lng }) => ({ lat, lng }))).toEqual([
+      { lat: 32, lng: 36 },
+      { lat: 32, lng: 34 },
+    ]);
+    // The crossing sits between both endpoints, so it is the densest point
+    expect(heat[0].intensity).toBeCloseTo(1.0);
+    expect(heat[1].intensity).toBeLessThan(1.0);
   });
 
   it("returns empty heatmap for no arcs", () => {

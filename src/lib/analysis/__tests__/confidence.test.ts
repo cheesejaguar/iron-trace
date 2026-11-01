@@ -27,7 +27,7 @@ function makeCluster(alerts: NormalizedAlert[]): SpatialCluster {
 }
 
 describe("confidence scoring", () => {
-  it("returns total between 0 and 1", () => {
+  it("combines factor scores with the documented weights", () => {
     const alerts = makeAlerts(5);
     const cluster = makeCluster(alerts);
     const ellipse: FittedEllipse = {
@@ -44,8 +44,15 @@ describe("confidence scoring", () => {
       MunitionClass.MRBM,
       alerts
     );
-    expect(score.total).toBeGreaterThanOrEqual(0);
-    expect(score.total).toBeLessThanOrEqual(1);
+    // 5 points → 0.7; e≥0.85 → 1.0; identical countdowns → 1.0;
+    // ballistic MRBM → 0.9; lng strictly increasing with time → 1.0
+    expect(score.clusterSize).toBeCloseTo(0.7);
+    expect(score.eccentricity).toBe(1.0);
+    expect(score.countdownConsistency).toBe(1.0);
+    expect(score.munitionMatch).toBe(0.9);
+    expect(score.temporalGradient).toBe(1.0);
+    // 0.7*0.25 + 1*0.20 + 1*0.20 + 0.9*0.20 + 1*0.15 = 0.905 → rounded to 2dp
+    expect(score.total).toBe(0.91);
   });
 
   it("gives higher score to large clusters", () => {

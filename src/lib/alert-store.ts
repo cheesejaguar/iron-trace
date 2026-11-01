@@ -6,7 +6,7 @@ type AlertListener = (alert: NormalizedAlert) => void;
  * In-memory alert store with KV-compatible interface.
  * Supports deduplication, TTL eviction, and event broadcasting.
  */
-class AlertStore {
+export class AlertStore {
   private alerts = new Map<string, { alert: NormalizedAlert; expiresAt: number }>();
   private listeners = new Set<AlertListener>();
   private ttlMs: number;
