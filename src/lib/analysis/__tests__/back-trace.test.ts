@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { computeBackTrace } from "../back-trace";
+import { haversineDistance } from "../haversine";
 import { ThreatOrigin, MunitionClass, type FittedEllipse } from "@/types";
 
 describe("computeBackTrace", () => {
@@ -20,7 +21,11 @@ describe("computeBackTrace", () => {
     expect(arc!.estimatedOrigin).toBe(ThreatOrigin.IRAN);
     expect(arc!.backAzimuth).toBeGreaterThan(30);
     expect(arc!.backAzimuth).toBeLessThan(90);
-    expect(arc!.arcPoints.length).toBeGreaterThan(50);
+    expect(arc!.backAzimuth).toBe(50);
+    // arcResolution 100 → start + 100 points, starting at the ellipse center
+    expect(arc!.arcPoints).toHaveLength(101);
+    expect(arc!.arcPoints[0].lat).toBeCloseTo(ellipse.center.lat, 6);
+    expect(arc!.arcPoints[0].lng).toBeCloseTo(ellipse.center.lng, 6);
   });
 
   it("traces toward Lebanon for N-pointing ellipse", () => {
@@ -36,23 +41,38 @@ describe("computeBackTrace", () => {
 
     expect(arc).not.toBeNull();
     expect(arc!.estimatedOrigin).toBe(ThreatOrigin.LEBANON);
+    expect(arc!.backAzimuth).toBe(0);
+    // Default Lebanon trace distance when munition is unknown
+    expect(arc!.distanceKm).toBe(200);
   });
 
-  it("returns null for ellipse pointing toward Mediterranean", () => {
-    // Ellipse pointing due west (270°) — no threat region
+  it("picks the Iran-facing end of an E-W axis (back-azimuth 90°)", () => {
+    // angle 270 → candidates 90° (Iran range 30-90, inclusive) and 270° (none)
     const ellipse: FittedEllipse = {
       center: { lat: 32.08, lng: 34.78 },
       semiMajorKm: 25,
       semiMinorKm: 5,
       eccentricity: 0.80,
-      angle: 270, // Points west; back-azimuth = 90° (Iran) or forward = 270° (Med)
+      angle: 270,
     };
-    // Actually 270 back-azimuth = 90° which IS in Iran range
     const arc = computeBackTrace(ellipse, "test-eng-3");
-    // This should point to Iran since 90° is in range 30-90
-    if (arc) {
-      expect(arc.estimatedOrigin).toBe(ThreatOrigin.IRAN);
-    }
+    expect(arc).not.toBeNull();
+    expect(arc!.estimatedOrigin).toBe(ThreatOrigin.IRAN);
+    expect(arc!.backAzimuth).toBe(90);
+    // Default Iran trace distance when munition is unknown
+    expect(arc!.distanceKm).toBe(1800);
+  });
+
+  it("returns null when neither end of the axis points to a threat region", () => {
+    // angle 120 → candidates 300° (Mediterranean) and 120° (Jordan/Saudi): neither known
+    const ellipse: FittedEllipse = {
+      center: { lat: 32.08, lng: 34.78 },
+      semiMajorKm: 25,
+      semiMinorKm: 5,
+      eccentricity: 0.80,
+      angle: 120,
+    };
+    expect(computeBackTrace(ellipse, "test-eng-null")).toBeNull();
   });
 
   it("uses munition max range when munition class provided", () => {
@@ -74,7 +94,8 @@ describe("computeBackTrace", () => {
 
     expect(srbmArc).not.toBeNull();
     expect(mrbmArc).not.toBeNull();
-    expect(srbmArc!.distanceKm).toBeLessThan(mrbmArc!.distanceKm);
+    expect(srbmArc!.distanceKm).toBe(700);
+    expect(mrbmArc!.distanceKm).toBe(2000);
   });
 
   it("uses specific munition range when matched munition provided", () => {
@@ -91,8 +112,8 @@ describe("computeBackTrace", () => {
     });
 
     expect(arc).not.toBeNull();
-    // MRBM max range should be used
-    expect(arc!.distanceKm).toBeGreaterThanOrEqual(800);
+    // Shahab-3 is an MRBM → MRBM max range (2000km), not the Iran default (1800km)
+    expect(arc!.distanceKm).toBe(2000);
   });
 
   it("generates uncertainty cone polygon", () => {
@@ -106,8 +127,15 @@ describe("computeBackTrace", () => {
     const arc = computeBackTrace(ellipse, "test-cone");
 
     expect(arc).not.toBeNull();
-    expect(arc!.uncertaintyCone.length).toBeGreaterThan(10);
-    // Cone should start and end at origin
-    expect(arc!.uncertaintyCone[0].lat).toBeCloseTo(ellipse.center.lat, 1);
+    // origin + 31 left-edge points + 31 right-edge points + origin
+    expect(arc!.uncertaintyCone).toHaveLength(64);
+    // Cone should start and end at origin (closed polygon)
+    expect(arc!.uncertaintyCone[0]).toEqual(ellipse.center);
+    expect(arc!.uncertaintyCone[arc!.uncertaintyCone.length - 1]).toEqual(ellipse.center);
+    // Far edge lies ~1800km out on both sides of the back-azimuth
+    const farLeft = arc!.uncertaintyCone[31];
+    const farRight = arc!.uncertaintyCone[32];
+    expect(haversineDistance(ellipse.center, farLeft)).toBeCloseTo(1800, -1);
+    expect(haversineDistance(ellipse.center, farRight)).toBeCloseTo(1800, -1);
   });
 });

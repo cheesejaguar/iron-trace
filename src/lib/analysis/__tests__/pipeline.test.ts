@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { runAnalysisPipeline } from "../pipeline";
 import type { NormalizedAlert } from "@/types";
-import { ThreatCategory, EngagementClassification } from "@/types";
+import { ThreatCategory, EngagementClassification, MunitionClass, ThreatOrigin } from "@/types";
 
 function makeBallisticAlerts(): NormalizedAlert[] {
   // Simulate an Iranian MRBM salvo: elongated NE-SW pattern over central Israel
@@ -47,46 +47,58 @@ describe("analysis pipeline", () => {
   it("processes ballistic alerts into engagement analyses", () => {
     const alerts = makeBallisticAlerts();
     const results = runAnalysisPipeline(alerts, { minPoints: 3 });
-    expect(results.length).toBeGreaterThan(0);
+    // All 8 alerts fall in one 15s window and one ~50km spatial cluster
+    expect(results).toHaveLength(1);
 
     const first = results[0];
-    expect(first.engagement).toBeDefined();
-    expect(first.clusters.length).toBeGreaterThan(0);
-    expect(first.confidence.total).toBeGreaterThan(0);
+    expect(first.engagement.alerts).toHaveLength(8);
+    expect(first.engagement.windowStart).toBe(alerts[0].timestamp);
+    expect(first.engagement.windowEnd).toBe(alerts[7].timestamp);
+    expect(first.clusters).toHaveLength(1);
+    expect(first.clusters[0].alerts).toHaveLength(8);
+    expect(first.ellipses).toHaveLength(1);
+    expect(first.timestamp).toBe(alerts[0].timestamp);
+    expect(first.confidence.total).toBeGreaterThan(0.9);
   });
 
   it("classifies ballistic with trajectory arc", () => {
     const alerts = makeBallisticAlerts();
     const results = runAnalysisPipeline(alerts, { minPoints: 3 });
 
-    const ballistic = results.find(
-      (r) => r.classification === EngagementClassification.BALLISTIC_MISSILE
-    );
-    if (ballistic) {
-      expect(ballistic.trajectories.length).toBeGreaterThan(0);
-      expect(ballistic.ellipses.length).toBeGreaterThan(0);
-    }
+    expect(results).toHaveLength(1);
+    const [ballistic] = results;
+    expect(ballistic.classification).toBe(EngagementClassification.BALLISTIC_MISSILE);
+    expect(ballistic.ellipses).toHaveLength(1);
+    expect(ballistic.trajectories).toHaveLength(1);
+    expect(ballistic.trajectories[0].estimatedOrigin).toBe(ThreatOrigin.IRAN);
+    expect(ballistic.trajectories[0].origin).toEqual(ballistic.ellipses[0].center);
   });
 
   it("processes rocket alerts (non-ballistic)", () => {
     const alerts = makeRocketAlerts();
     const results = runAnalysisPipeline(alerts, { minPoints: 2 });
-    expect(results.length).toBeGreaterThan(0);
-    // Rockets should not have back-trace trajectories
-    for (const r of results) {
-      if (r.classification !== EngagementClassification.BALLISTIC_MISSILE) {
-        expect(r.trajectories.length).toBe(0);
-      }
-    }
+    expect(results).toHaveLength(1);
+    // Median countdown 15s → short-range rocket, which gets no back-trace
+    expect(results[0].classification).toBe(EngagementClassification.SHORT_RANGE_ROCKET);
+    expect(results[0].munitionType).toBe(MunitionClass.ROCKET);
+    expect(results[0].trajectories).toEqual([]);
   });
 
   it("respects custom pipeline options", () => {
     const alerts = makeBallisticAlerts();
-    // Very large epsilon should merge all into one cluster
-    const results = runAnalysisPipeline(alerts, {
-      epsilonKm: 500,
-      minPoints: 2,
-    });
-    expect(results.length).toBeGreaterThan(0);
+    expect(runAnalysisPipeline(alerts, { minPoints: 3 })).toHaveLength(1);
+
+    // Alerts are 1.5s apart: a 1s window puts each in its own engagement,
+    // each too small to fit an ellipse or classify
+    const split = runAnalysisPipeline(alerts, { windowMs: 1000, minPoints: 3 });
+    expect(split).toHaveLength(8);
+    for (const r of split) {
+      expect(r.engagement.alerts).toHaveLength(1);
+      expect(r.ellipses).toEqual([]);
+      expect(r.classification).toBe(EngagementClassification.UNKNOWN);
+    }
+
+    // A 1km DBSCAN radius isolates every city, so nothing clusters
+    expect(runAnalysisPipeline(alerts, { epsilonKm: 1, minPoints: 3 })).toEqual([]);
   });
 });

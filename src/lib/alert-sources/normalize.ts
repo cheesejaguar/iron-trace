@@ -14,7 +14,7 @@ function mapCategory(cat: string): ThreatCategory {
 
 /** Deterministic ID from timestamp + regions for deduplication */
 function computeAlertId(timestamp: string, regions: string[]): string {
-  const hash = regions.sort().join("|");
+  const hash = [...regions].sort().join("|");
   return `${timestamp}-${simpleHash(hash)}`;
 }
 
